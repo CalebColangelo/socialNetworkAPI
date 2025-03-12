@@ -1,6 +1,5 @@
 import Thoughts from "../models/thoughtModel.js";
 import User from "../models/userModels.js";
-// get all thoughts
 export const getThoughts = async (_req, res) => {
     try {
         const thoughts = await Thoughts.find({}).select("-__v");
@@ -16,11 +15,9 @@ export const getThoughts = async (_req, res) => {
         return;
     }
 };
-// get single thougt
 export const getSingleThought = async (req, res) => {
     try {
         const thoughts = await Thoughts.findById(req.params.thoughtId);
-        // if no thought found
         if (!thoughts) {
             res.status(404).json({ message: "thought not found" });
             return;
@@ -33,12 +30,10 @@ export const getSingleThought = async (req, res) => {
         return;
     }
 };
-// create a thought
 export const createThoughts = async (req, res) => {
     try {
         const thoughts = await Thoughts.create(req.body);
         const user = await User.findByIdAndUpdate(req.body.userId, { $addToSet: { thoughts: thoughts._id } }, { new: true });
-        // checking if user exists
         if (!user) {
             res.status(404).json({ message: "Anonymous thought created, no user specified" });
             return;
@@ -51,7 +46,6 @@ export const createThoughts = async (req, res) => {
         return;
     }
 };
-// update a thought
 export const updateThought = async (req, res) => {
     try {
         const thoughts = await Thoughts.findByIdAndUpdate(req.params.thoughtId, req.body, { new: true });
@@ -67,8 +61,6 @@ export const updateThought = async (req, res) => {
         return;
     }
 };
-// delete a thought
-//x todo update the user when a thought is deleted
 export const deleteThought = async (req, res) => {
     try {
         const thoughts = await Thoughts.findById(req.params.thoughtId);
@@ -76,9 +68,7 @@ export const deleteThought = async (req, res) => {
             res.status(404).json({ message: "Thought not found" });
             return;
         }
-        // pulling the thought before deleting it
         await User.findOneAndUpdate({ thoughts: req.params.thoughtId }, { $pull: { thoughts: req.params.thoughtId } }, { new: true });
-        // deleting the thought
         await Thoughts.findByIdAndDelete(req.params.thoughtId);
         res.status(200).json({ message: "Thought Deleted." });
         return;
@@ -88,8 +78,6 @@ export const deleteThought = async (req, res) => {
         return;
     }
 };
-// reactions
-// create a reaction
 export const createReaction = async (req, res) => {
     try {
         const reaction = await Thoughts.findByIdAndUpdate(req.params.thoughtId, {
@@ -107,7 +95,6 @@ export const createReaction = async (req, res) => {
         return;
     }
 };
-// delete a reaction
 export const deleteReaction = async (req, res) => {
     try {
         const reaction = await Thoughts.findByIdAndUpdate(req.params.thoughtId, { $unset: { reactions: "" } });
